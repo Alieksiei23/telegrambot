@@ -1,15 +1,25 @@
-from copy import deepcopy
-from aiogram import F, Router
-from aiogram.filters import CommandStart
-from aiogram.types import CallbackQuery, Message, InputMediaPhoto, FSInputFile
-from pyexpat.errors import messages
+import psycopg2
 
-# from database.database import user_dict_template, users_db
+from aiogram import F, Router
+from aiogram.filters import CommandStart, Command
+from aiogram.types import CallbackQuery, Message, FSInputFile
+from environs import Env
 from keyboards.replykeyboard import start_keyboard
 from keyboards.interkeyboard import (about_me_keyboard, inline_princip, inline_portfolio,
                                      calculate_hard, calculate_period, amount_marks, choice_menu, logo_key,
                                      poligraf_key, smm_key, merch_key, content_key)
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+env = Env()
+env.read_env(override=True)
+try:
+    conn = psycopg2.connect(
+    host=env('host'),
+    user=env('user'),
+    password=env('password'),
+    port=env('port'),
+    dbname=env('dbname')
+    )
+
 
 router = Router()
 data_base = {}
@@ -18,6 +28,9 @@ portfolio = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.j
 # старт
 @router.message(CommandStart())
 async def cmd_start(message: Message):
+    cursor = conn.cursor()
+    cursor.execute(f"INSERT INTO users(user_id, username, name, date) VALUES('{message.from_user.id}', '{message.from_user.username}', '{message.from_user.first_name}', 'NOW()')")
+    conn.commit()
     await message.answer(
         'Привет! Я - цифровой помощник Ксюши, графического дизайнера. Помогу:'
         '\n✨Узнать о моем подходе к дизайну'
@@ -28,26 +41,33 @@ async def cmd_start(message: Message):
     if message.from_user.id not in data_base:
         data_base[message.from_user.id] = [0, 0]
 
-
+@router.message(Command('help'))
+async def cmd_start(message: Message):
+    await message.answer(
+        'Выберите интересующую категорию!',
+        reply_markup=start_keyboard
+    )
 
 @router.callback_query(F.data=='about_me')
 @router.message(F.text=='Обо мне!')
 async def about_me(message: Message | CallbackQuery):
     if isinstance(message, Message):
         await message.answer(
-        '''я - Ксюша, графический дизайнер, который превращает идеи в визуальные решения.
-            \nза 18 месяцев опыта работы на крупном предприятии научилась находить баланс между стандартами компании и творческими решениями. 
-            \nв моем портфолио - брендинг, печатная продукция, наружная реклама и цифровые форматы, 
-            выполненные с вниманием к деталям и пониманием контекста.''',
+        "<b>Я — Ксюша</b> 😊, графический дизайнер, который превращает идеи в визуальные решения. 🎨\n"
+        "За <b>18 месяцев</b> опыта работы на крупном предприятии я научилась находить баланс ⚖️ "
+        "между стандартами компании и творческими решениями. ✨\n\n"
+        "<b>В моем портфолио:</b> брендинг 🏷️, печатная продукция 🖨️, наружная реклама 📢 и цифровые форматы 💻, "
+        "выполненные с вниманием к деталям и пониманием контекста. 🔍",
         reply_markup=about_me_keyboard
         )
     else:
         await message.answer()
         await message.message.edit_text(
-            '''я - Ксюша, графический дизайнер, который превращает идеи в визуальные решения.
-            \nза 18 месяцев опыта работы на крупном предприятии научилась находить баланс между стандартами компании и творческими решениями. 
-            \nв моем портфолио - брендинг, печатная продукция, наружная реклама и цифровые форматы, 
-            выполненные с вниманием к деталям и пониманием контекста.''',
+        "<b>Я — Ксюша</b> 😊, графический дизайнер, который превращает идеи в визуальные решения. 🎨\n"
+        "За <b>18 месяцев</b> опыта работы на крупном предприятии я научилась находить баланс ⚖️ "
+        "между стандартами компании и творческими решениями. ✨\n\n"
+        "<b>В моем портфолио:</b> брендинг 🏷️, печатная продукция 🖨️, наружная реклама 📢 и цифровые форматы 💻, "
+        "выполненные с вниманием к деталям и пониманием контекста. 🔍",
             reply_markup=about_me_keyboard
         )
 
@@ -56,9 +76,11 @@ async def about_me(message: Message | CallbackQuery):
 async def princ_func(callback: CallbackQuery):
     await callback.answer()
     await callback.message.edit_text(
-        '''в работе сочетаю креативность с дисциплиной - генерирую идеи и всегда помню о дедлайнах. 
-                \nинициативна, внимательна к деталям и открыта к диалогу.
-                \nВ работе использую Adobe Illustrator, Adobe Photoshop, Figma''',
+        "В работе сочетаю креативность 🤯 с дисциплиной 🫡.\n"
+    "Генерирую идеи 💡 и всегда помню о дедлайнах 😇.\n"
+    "Инициативна, внимательна к деталям и открыта к диалогу 😉.\n"
+    "В работе использую:\n"
+    "<b><i>Adobe Illustrator</i></b>, <b><i>Adobe Photoshop</i></b>, <b><i>Figma</i></b>.",
         reply_markup=inline_princip
     )
 
@@ -103,7 +125,7 @@ async def back_slide(callback: CallbackQuery):
 @router.message(F.text=='Расчитать стоимость')
 async def calculate_cashe(message: Message):
     await message.answer(
-        text='Укажи работу которую необходимо выполнить',
+        text='Укажи работу которую необходимо выполнить!',
         reply_markup=choice_menu
     )
 
@@ -120,15 +142,15 @@ async def price1(callback: CallbackQuery):
 async def price1(callback: CallbackQuery):
     await callback.answer()
     if callback.data=='logo':
-        await callback.message.edit_text('выберите ',reply_markup=logo_key)
+        await callback.message.edit_text('Какой брендинг вам интересен?',reply_markup=logo_key)
     elif callback.data=='poligraf':
-        await callback.message.edit_text('выберите ',reply_markup=poligraf_key)
+        await callback.message.edit_text('Выберите нужную полиграфию!',reply_markup=poligraf_key)
     elif callback.data=='smm':
-        await callback.message.edit_text('выберите ',reply_markup=smm_key)
+        await callback.message.edit_text('Выберите тип рекламы!',reply_markup=smm_key)
     elif callback.data=='merch':
-        await callback.message.edit_text('выберите ',reply_markup=merch_key)
+        await callback.message.edit_text('Какой мерч вы рассматриваете?',reply_markup=merch_key)
     elif callback.data=='content':
-        await callback.message.edit_text('выберите ',reply_markup=content_key)
+        await callback.message.edit_text('Выберите нужный контент!',reply_markup=content_key)
 
 
 @router.callback_query(F.data.in_(['logo1', 'logo2']))
@@ -139,7 +161,7 @@ async def price1(callback: CallbackQuery):
         data_base[callback.from_user.id][1] = 100
     await callback.answer()
     await callback.message.edit_text(
-        'выберите сложность',
+        'Какой сложности работа?',
         reply_markup=calculate_hard
     )
 
@@ -153,83 +175,66 @@ async def price1(callback: CallbackQuery):
         data_base[callback.from_user.id][1] = 100
     await callback.answer()
     await callback.message.edit_text(
-        'выберите сложность',
+        'Какой сложности работа?',
         reply_markup=calculate_hard
     )
 
 @router.callback_query(F.data.in_(['smm1', 'smm2', 'smm3', 'smm4', 'smm5']))
 async def price1(callback: CallbackQuery):
     if callback.data=='smm1':
-        data_base[callback.from_user.id][1] = 50
+        data_base[callback.from_user.id][1] = 60
     elif callback.data=='smm2':
-        data_base[callback.from_user.id][1] = 70
+        data_base[callback.from_user.id][1] = 65
     elif callback.data == 'smm3':
-        data_base[callback.from_user.id][1] = 100
+        data_base[callback.from_user.id][1] = 70
     elif callback.data == 'smm4':
-        data_base[callback.from_user.id][1] = 150
+        data_base[callback.from_user.id][1] = 75
     elif callback.data == 'smm5':
-        data_base[callback.from_user.id][1] = 200
+        data_base[callback.from_user.id][1] = 80
     await callback.answer()
     await callback.message.edit_text(
-        'выберите сложность',
+        'Какой сложности работа?',
         reply_markup=calculate_hard
     )
 
 @router.callback_query(F.data.in_(['merch1', 'merch2', 'merch3']))
 async def price1(callback: CallbackQuery):
     if callback.data=='merch1':
-        data_base[callback.from_user.id][1] = 50
-    elif callback.data=='merch2':
-        data_base[callback.from_user.id][1] = 70
-    elif callback.data == 'merch3':
         data_base[callback.from_user.id][1] = 100
+    elif callback.data=='merch2':
+        data_base[callback.from_user.id][1] = 150
+    elif callback.data == 'merch3':
+        data_base[callback.from_user.id][1] = 50
     await callback.answer()
     await callback.message.edit_text(
-        'выберите сложность',
+        'Какой сложности работа?',
         reply_markup=calculate_hard
     )
 
 @router.callback_query(F.data.in_(['content1', 'content2', 'content3']))
 async def price1(callback: CallbackQuery):
     if callback.data=='content1':
-        data_base[callback.from_user.id][1] = 50
+        data_base[callback.from_user.id][1] = 150
     elif callback.data=='content2':
-        data_base[callback.from_user.id][1] = 70
-    elif callback.data == 'content3':
         data_base[callback.from_user.id][1] = 100
+    elif callback.data == 'content3':
+        data_base[callback.from_user.id][1] = 70
     await callback.answer()
     await callback.message.edit_text(
-        'выберите сложность',
+        'Какой сложности работа?',
         reply_markup=calculate_hard
     )
 
-# @router.callback_query(F.data.in_(['price1', 'price2', 'price3', 'price4', 'price5']))
-# async def price1(callback: CallbackQuery):
-#     if callback.data=='price1':
-#         data_base[callback.from_user.id][1] = 50
-#     elif callback.data=='price2':
-#         data_base[callback.from_user.id][1] = 100
-#     elif callback.data=='price3':
-#         data_base[callback.from_user.id][1] = 150
-#     elif callback.data=='price4':
-#         data_base[callback.from_user.id][1] = 200
-#     elif callback.data=='price5':
-#         data_base[callback.from_user.id][1] = 300
-#     await callback.answer()
-#     await callback.message.edit_text(
-#         'выберите сложность',
-#         reply_markup=calculate_hard
-#     )
 
 @router.callback_query(F.data.in_(['easy', 'medium', 'hard']))
 async def hard_skills(callback: CallbackQuery):
     if callback.data=='medium':
-        data_base[callback.from_user.id][1] = data_base[callback.from_user.id][1] * 1.1
+        data_base[callback.from_user.id][1] = data_base[callback.from_user.id][1] * 1.15
     elif callback.data=='hard':
         data_base[callback.from_user.id][1] = data_base[callback.from_user.id][1] * 1.5
     await callback.answer()
     await callback.message.edit_text(
-        'В какие сроки вам нужно сделать?',
+        'Срочный ли у вас заказ?',
         reply_markup=calculate_period
     )
 
@@ -246,7 +251,7 @@ async def hard_skills(callback: CallbackQuery):
 @router.callback_query(F.data.in_(['marks1', 'marks2', 'marks3']))
 async def hard_skills(callback: CallbackQuery):
     if callback.data=='marks2':
-        data_base[callback.from_user.id][1] = data_base[callback.from_user.id][1] * 1.1
+        data_base[callback.from_user.id][1] = data_base[callback.from_user.id][1] * 1.15
     elif callback.data=='marks3':
         data_base[callback.from_user.id][1] = data_base[callback.from_user.id][1] * 1.5
     await callback.answer()

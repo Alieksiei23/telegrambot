@@ -1,10 +1,10 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 
 about_me_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Качества и Навыки', callback_data='princ')],
     [InlineKeyboardButton(text='Мой Instagram', url='https://www.instagram.com/ahsusk_/profilecard/')],
-    [InlineKeyboardButton(text='Телеграмм для связи', url='https://t.me/ahsusk4')]
+    [InlineKeyboardButton(text='Телеграм для связи', url='https://t.me/ahsusk4')]
 
 ]
 )
@@ -38,12 +38,14 @@ logo_key = InlineKeyboardMarkup(
     [InlineKeyboardButton(text='Создание логотипа', callback_data='logo1')],
     [InlineKeyboardButton(text='Фирменный стиль', callback_data='logo2')],
     [InlineKeyboardButton(text='Отмена', callback_data='cancel')]])
+
 poligraf_key = InlineKeyboardMarkup(
     inline_keyboard=[
     [InlineKeyboardButton(text='Брошюра/Буклет/Флаер/Листовка/Билет/Постер', callback_data='poligraf1')],
     [InlineKeyboardButton(text='Журнал/Упаковка/Наклейки', callback_data='poligraf2')],
     [InlineKeyboardButton(text='Этикетка/Обложка книги/Каталог', callback_data='poligraf3')],
     [InlineKeyboardButton(text='Отмена', callback_data='cancel')]])
+
 smm_key = InlineKeyboardMarkup(
     inline_keyboard=[
     [InlineKeyboardButton(text='Афиша', callback_data='smm1')],
@@ -54,12 +56,14 @@ smm_key = InlineKeyboardMarkup(
     [InlineKeyboardButton(text='Отмена', callback_data='cancel')]
     ]
 )
+
 merch_key = InlineKeyboardMarkup(
     inline_keyboard=[
     [InlineKeyboardButton(text='Принт для футболки', callback_data='merch1')],
     [InlineKeyboardButton(text='Принт для сумки', callback_data='merch2')],
     [InlineKeyboardButton(text='Дизайн кружки', callback_data='merch3')],
     [InlineKeyboardButton(text='Отмена', callback_data='cancel')]])
+
 content_key = InlineKeyboardMarkup(
     inline_keyboard=[
     [InlineKeyboardButton(text='Стикеры/Иконки/Пиктограммы', callback_data='content1')],
@@ -69,22 +73,9 @@ content_key = InlineKeyboardMarkup(
     ]
 )
 
-
-
-
-# calculate_cache = InlineKeyboardMarkup(
-#     inline_keyboard=[
-#     [InlineKeyboardButton(text='Логотип', callback_data='price1')],
-#     [InlineKeyboardButton(text='Фирменный стиль', callback_data='price2')],
-#     [InlineKeyboardButton(text='Упаковка', callback_data='price3')],
-#     [InlineKeyboardButton(text='Полиграфия (визитки, буклеты)', callback_data='price4')],
-#     [InlineKeyboardButton(text='Соцсети (обложки, шаблоны)', callback_data='price5')]
-#     ]
-# )
-
 calculate_hard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Простой (шаблонный дизайн)', callback_data='easy')],
-    [InlineKeyboardButton(text='Средний (индивидуальный, но без уникальных иллюстраций)', callback_data='medium')],
+    [InlineKeyboardButton(text='Средний (индивидуальный, без уникальных иллюстраций)', callback_data='medium')],
     [InlineKeyboardButton(text='Сложный (полный брендинг с анимацией)', callback_data='hard')],
     [InlineKeyboardButton(text='Отмена', callback_data='cancel')]]
 )

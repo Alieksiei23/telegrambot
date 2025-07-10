@@ -6,6 +6,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from handlers import other_handlers, user_handlers
+from keyboards.set_menu import set_main_menu
+
 
 env = Env()
 env.read_env(override=True)
@@ -35,6 +37,7 @@ async def main():
     dp.include_router(user_handlers.router)
     dp.include_router(other_handlers.router)
 
+    await set_main_menu(bot)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
