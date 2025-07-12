@@ -1,28 +1,18 @@
-import psycopg2
 
+from database.database import conn, data_base
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import CallbackQuery, Message, FSInputFile
-from environs import Env
 from keyboards.replykeyboard import start_keyboard
 from keyboards.interkeyboard import (about_me_keyboard, inline_princip, inline_portfolio,
                                      calculate_hard, calculate_period, amount_marks, choice_menu, logo_key,
                                      poligraf_key, smm_key, merch_key, content_key)
 
-env = Env()
-env.read_env(override=True)
-try:
-    conn = psycopg2.connect(
-    host=env('host'),
-    user=env('user'),
-    password=env('password'),
-    port=env('port'),
-    dbname=env('dbname')
-    )
+
+
 
 
 router = Router()
-data_base = {}
 portfolio = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg']
 
 # старт
@@ -31,6 +21,8 @@ async def cmd_start(message: Message):
     cursor = conn.cursor()
     cursor.execute(f"INSERT INTO users(user_id, username, name, date) VALUES('{message.from_user.id}', '{message.from_user.username}', '{message.from_user.first_name}', 'NOW()')")
     conn.commit()
+    if message.from_user.id not in data_base:
+        data_base[message.from_user.id] = [0, 0]
     await message.answer(
         'Привет! Я - цифровой помощник Ксюши, графического дизайнера. Помогу:'
         '\n✨Узнать о моем подходе к дизайну'
@@ -38,8 +30,7 @@ async def cmd_start(message: Message):
         '\n📂Показать, как создаются крутые бренды',
         reply_markup=start_keyboard
     )
-    if message.from_user.id not in data_base:
-        data_base[message.from_user.id] = [0, 0]
+
 
 @router.message(Command('help'))
 async def cmd_start(message: Message):
